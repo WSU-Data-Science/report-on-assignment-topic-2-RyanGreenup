@@ -1,0 +1,15 @@
+runif(100, 0, 1)
+inverse_sigmoid <- function(x) {
+  if (x < 0 || x >= 1) {
+    stop("Values must be in [0,1)")
+  }
+    log(x/(1-x))
+}
+
+
+unif_vals = runif(100, 0, 1) 
+unif_vals
+
+
+inverse_sigmoid(99)
+0.5/()

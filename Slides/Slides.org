@@ -1,0 +1,155 @@
+#+TITLE: Copulas
+:PREAMBLE:
+#+OPTIONS: broken-links:auto todo:nil H:9
+#+STARTUP: content
+#+OPTIONS: tags:not-in-toc d:nil
+#+AUTHOR: Ryan
+#+INFOJS_OPT: view:showall toc:3
+#+PLOT: title:"Citas" ind:1 deps:(3) type:2d with:histograms set:"yrange [0:]"
+#+OPTIONS: tex:t
+# #+TODO: TODO IN-PROGRESS WAITING DONE
+#+CATEGORY: TAD
+:END:
+:HTML:
+#+INFOJS_OPT: view:info toc:3
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="style.css">
+# #+CSL_STYLE: /home/ryan/Templates/CSL/nature.csl
+:END:
+:R:
+#+PROPERTY: header-args:R :session TADMain :dir ./ :cache yes :eval never-export :exports both
+#+PROPERTY: :eval never-export
+# exports: both (or code or whatever)
+# results: table (or output or whatever)
+:END:
+:LATEX:
+#+LATEX_HEADER: \IfFileExists{../resources/style.sty}{\usepackage{../resources/style}}{}
+#+LATEX_HEADER: \IfFileExists{../resources/referencing.sty}{\usepackage{../resources/referencing}}{}
+#+LATEX_HEADER: \addbibresource{./bibtex-refs.bib}
+:END:
+:REVEAL:
+#+REVEAL_THEME: sky
+:END:
+
+# #+begin_export html
+# <p><img src="https://www.sympy.org/static/images/logo.png" width="50"/>
+#     <img src="https://julialang.org/assets/infra/logo.svg" width="50"/>
+#     <img src="https://makie.juliaplots.org/stable/assets/logo.png" width="50"/>
+#     <img src="https://numpy.org/images/logos/numpy.svg" width="50"/>
+#     <img src="https://www-fourier.ujf-grenoble.fr/~parisse/logo.png" width="50"/>
+#     <img src="http://maxima.sourceforge.net/i/logo.png"/></p>
+# #+end_export
+
+
+# #+attr_html: :width 400px
+# #+attr_latex: :width 9cm
+# #+NAME: 8-fold-plot
+# #+CAPTION: Output produced by listing [[persian-recursion-python]] with 9 folds
+# [[file:../persian-recursion-large.svg]]
+
+
+* Copulas as a type of Function
+  1. Domain is given by \(\left[0,1\right]\)
+  2. Grounded
+  3. Quasi Monotone
+  4. Marginals exist
+
+  \(\implies\) range of \(\left[0,1\right]\)
+** Quasi Monotone
+   
+    $$\begin{aligned}
+    \forall \left(x_{1}\leq x_{2}\land y_{1}\leq
+    y_{2}\right)&\in\left(S_{1}\times S_{2}\right) \\
+    \ &\\
+    C'\left(x_{1},y_{1}\right)&+C'\left(x_{2},y_{2}\right) \\
+    &\geq \\
+    C'\left(x_{1},y_{2}\right)&+C'\left(x_{2},y_{1}\right)
+    \end{aligned}$$
+** Grounded
+    \[
+    \left(x=0\right)\lor\left(y=0\right)\implies C'\left(x,y\right)=0
+    \]
+** Marginals
+   Let \(b_1\) and \(b_2\) be the largest values on the domain,
+   marginals are:
+
+   + \(F\left(x\right)=H\left(x,b_{2}\right)\)
+   + \(G\left(y\right)=H\left(b_{1},y\right)\)
+** Bounds of a Copula
+   \[
+    \max\left(u+v-1,0\right)\leq C\left(u,v\right)\leq\min\left(u,v\right)
+   \]
+** Continuity
+   Lipschitz condition; uniform continuity if:
+   \[
+    \left|f\left(x\right)-f\left(x'\right)\right|\leq M\left|x-x'\right|\quad\forall x,x'\in\left[a,b\right]
+   \]
+   Triangle inequality:
+   $$\begin{aligned}
+    \left|u_{2}-u_{1}\right| + \left|v_{2}-v_{1}\right| &  \\
+			    & \geq \\
+    \left|C'\left(u_{2},v_{2}\right)-C'\left(u_{1},v_{1}\right)\right|  &
+   \end{aligned}$$
+
+   Uniformly Continuous
+
+* Distribution Functions
+** Continuity and Inversability
+** Univariate Distribution
+
+  \(F:\mathbb{R}\rightarrow\left[0,1\right]\) is such that:
+
+    + \(F\) is non-decreasing
+    + \(F\left(-\infty\right)=0\)
+    + \(F\left(\infty\right)=1\)
+*** Unit Step
+ #+attr_html: :width 400px
+ #+attr_latex: :width 9cm
+ #+NAME: unit-step
+ #+CAPTION: Output produced by listing [[persian-recursion-python]] with 9 folds
+ [[../media/unit-step.svg]]
+*** Uniform Distribution
+    Area underneath:
+ #+attr_html: :width 400px
+ #+attr_latex: :width 9cm
+ #+NAME: uniform
+ #+CAPTION: Output produced by listing [[persian-recursion-python]] with 9 folds
+ [[../media/uniform-distribution.svg]]
+
+** Joint Distribution
+    Some function H with a domain on \mathbb{R}^{2}
+
+    1. \(H\) is 2-increasing
+    2. Is grounded
+    + \(H\left(x,-\infty\right)=H\left(y,-\infty\right)=0\)
+    3. \(H\left(\infty,\infty\right)=1\)
+** Quasi Inverse
+   # If the Distribution Function has a flat spot we need to be careful:
+
+ #+attr_html: :width 400px
+ #+attr_latex: :width 9cm
+ #+NAME: quas-inv
+ [[../media/quasi-inverse.svg]]
+* Sklar's Theorem
+  We can always find a copula \(C\):
+  \[
+    H\left(x,y\right)=C\left(F\left(x\right),G\left(y\right)\right)
+  \]
+** Finding that Copula
+   Just inverse it:
+   \[
+    C\left(u,v\right)=H\left(F^{-1}\left(x\right),G^{-1}\left(y\right)\right)
+   \]
+** Marginals of the Copula
+   The marginals of this copula will be uniformly distributed.
+* Example
+  Go through an example from Mathematica
+* Why Copulas?
+  + Why not just use the marginals to get the probability?
+    + Great Question
+      + I don't know yet, but probably generating samples
+  Coming Soon
+* Generating Random numbers with Coupulas
+  Coming Soon
+
+* Generating Random numbers with Coupulas accross many distributions
+  Coming Soon
