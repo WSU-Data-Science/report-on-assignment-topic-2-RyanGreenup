@@ -74,11 +74,11 @@
 
    + \(F\left(x\right)=H\left(x,b_{2}\right)\)
    + \(G\left(y\right)=H\left(b_{1},y\right)\)
-** Bounds of a Copula
+** COMMENT Bounds of a Copula
    \[
     \max\left(u+v-1,0\right)\leq C\left(u,v\right)\leq\min\left(u,v\right)
    \]
-** Continuity
+** COMMENT Continuity
    Lipschitz condition; uniform continuity if:
    \[
     \left|f\left(x\right)-f\left(x'\right)\right|\leq M\left|x-x'\right|\quad\forall x,x'\in\left[a,b\right]
@@ -93,7 +93,7 @@
    Uniformly Continuous
 
 * Distribution Functions
-** Continuity and Inversability
+** COMMENT Continuity and Inversability
 ** Univariate Distribution
 
   \(F:\mathbb{R}\rightarrow\left[0,1\right]\) is such that:
@@ -141,15 +141,158 @@
    \]
 ** Marginals of the Copula
    The marginals of this copula will be uniformly distributed.
-* Example
-  Go through an example from Mathematica
+** Why?
+   It describes the interaction between the two variables
+
+   
+   \[p_1, p_2 \rightarrow p_{\mathrm{both}}\]
+* Sampling Random Variables
+** Univariate
+*** Logistic Example
+*** COMMENT Another univariate example
+   
+   Another good one is something like:
+
+   \[
+    \int \frac{8}{x^{2}+4} \mathrm{d}x
+   \]
+** Multivariate
+** Independent
+   ~TODO~: show inverse of inverse multiplied is xy
+
+
+** Dependent
+   So, let's say i have this distribution:
+   \[
+    H\left(x,y\right) = \frac{e^{0.7 x+0.5 y}}{e^{0.7 x+0.5 y}+e^{0.7 x}+e^{0.5 y}}   
+    \]
+    It looks complex but synthesizing examples hard!
+    
+*** Solve the Marginals
+    The marginals occur at the maximum values:
+    \[
+    x = 1 \implies \frac{1}{e^{-0.7 x}+1}
+    \]
+    \[
+    y = 1 \implies \frac{1}{e^{-0.5 y}+1}
+    \]
+
+    So this is what we get without there interdependence.
+    
+*** Solve the inverse
+    \[
+    F^{-1}(x)=P(X\leq x)=\frac{\log \left(-\frac{x}{x-1}\right)}{-0.7}
+    \]
+    \[
+    G^{-1}(y)=P(Y\leq y)=\frac{\log \left(-\frac{y}{y-1}\right)}{-0.5}
+    \]
+
+*** Find the Copula
+    \[\begin{aligned}
+    C\left(u,v\right)&=H\left(F^{-1}\left(u\right),G^{-1}\left(v\right)\right)\\
+    \ \\
+    &=\frac{uv}{1-(1-u)(1-v)}
+    \end{aligned}\]
+    
+*** Find a Random value
+
+    #+begin_src julia
+      n = 1
+      u = rand(Uniform(0,1), 1)
+      t = rand(Uniform(0,1), 1)
+      # v depends on u and t
+    #+end_src
+    
+*** Account for dependence
+**** Partial Derivative
+    It can be shown that 
+
+\begin{align*}
+    \mathrm{P}\left[ V \leq v \mid U = u  \right] &= \lim_{\Delta \rightarrow  0}\left( \frac{\mathrm{C}\left( u + \Delta u, v \right) -\mathrm{C}\left( u,v \right) }{F\left( u + \Delta u \right) - F \left( u \right) } \right) \\
+ &= \frac{\partial C}{\partial u} \\
+    &= \frac{v^2}{(u (-v)+u+v)^2} \\
+   & := c_u\left(v \right)
+.\end{align*}
+
+**** Inverse the PDE
+
+       Take \(u, t \in \left[0,1\right]\) use it to find \(v\):
+
+       \[
+       c_u\left(v\right) = t
+       \]
+       which gives:
+
+       \[
+	c^{-1}_u\left(t\right) = \frac{u^2 t-u t-u \sqrt{t}}{u^2 t-2 u t+t-1}
+       \]
+       
+
+**** COMMENT Proof
+
+\begin{align*}
+    \mathrm{P}\left[ V \leq v \mid U \leq u  \right] &= \frac{\mathrm{P}\left( u \in \left[ u, u + \Delta u \right] \land V \leq v  \right) }{\mathrm{P} \left[ u \in \left[ u + \Delta u \right]  \right] } \\
+    &= \frac{\mathrm{C}\left( u + \Delta u, v \right) -\mathrm{C}\left( u,v \right) }{F\left( u + \Delta u \right) - F\left( u \right) } \\
+    \ \\
+    \mathrm{P}\left[ V \leq v \mid U = 0 \right] &= \lim_{\Delta \rightarrow  0}\left( \mathrm{P}\left[ V \leq v \mid U \in \left[ u, u + \Delta u \right]  \right]  \right) \\ 
+    &= \lim_{\Delta \rightarrow  0}\left( \frac{\mathrm{C}\left( u + \Delta u, v \right) -\mathrm{C}\left( u,v \right) }{F\left( u + \Delta u \right) - F \left( u \right) } \right) \\
+.\end{align*}
+
+We have $\frac{0}{0}$ so by /L'Hospital's Rule/:
+
+\begin{align*}
+    \mathrm{P}\left[ V \leq v \mid U = u  \right] &= \lim_{\Delta \rightarrow  0}\left( \frac{\mathrm{C}\left( u + \Delta u, v \right) -\mathrm{C}\left( u,v \right) }{F\left( u + \Delta u \right) - F \left( u \right) } \right) \\
+&= {\lim_{\Delta \rightarrow  0}\left( \frac{\frac{\partial }{\partial \Delta x} \left( \mathrm{C}\left( u + \Delta u, v \right) -\mathrm{C}\left( u,v \right)  \right) }{\frac{\partial }{\partial \Delta x} \left( F\left( u + \Delta u \right) - F \left( u \right)  \right) }
+ \right)} \\
+ &= \frac{\partial \left( \mathrm{C}\left( u + \Delta u, v \right)  \right) }{\partial \left( \mathrm{F} \left( u + \Delta u \right)  \right) } \\
+ &= \frac{\partial C}{\partial u}
+.\end{align*}
+
+
+*** Restate the Uniform Values
+    \(u,t \in \mathrm{U}\left[0,1\right]\) and:
+
+
+       \[
+	v = c^{-1}_u\left(t\right) = \frac{u^2 t-u t-u \sqrt{t}}{u^2 t-2 u t+t-1}
+       \]
+       
+*** Plug these into the inverse marginals
+    \[
+     x =   \mathrm{F}^{-1}\left(u\right) = \frac{\log \left(-\frac{u}{u-1}\right)}{-0.7}
+     \]
+
+     
+    \[\begin{align*}
+     y &= \mathrm{G}^{-1}\left(v\right) = \frac{\log
+     \left(-\frac{y}{y-1}\right)}{-0.5}
+     \end{align*}\]
+     
+
+    
+*** Now let's program it
+
+** How I did the Dependent
+*** Find a copula
+    So pick a family of copulas, plug in some marginal functions
+    (let's choose exponential), out pops a joint dist.
+   
+*** Next
+  plug in marginals
+  solve the randoms
+*** How to Simulate values from a joint distribution
+    1. Solve the Marginals and inverse them
+    3. Plug the Inverse back into the joint distribution to get the copula
+    4. Solve the inverse partial derivative
+    5. Pick \(u, t \in [0,1]\)
+    6. Plug t into the partial to get v
+    7. Plug u,t back into the inverse marginals and you're done.
+       
 * Why Copulas?
   + Why not just use the marginals to get the probability?
     + Great Question
       + I don't know yet, but probably generating samples
   Coming Soon
-* Generating Random numbers with Coupulas
-  Coming Soon
-
-* Generating Random numbers with Coupulas accross many distributions
-  Coming Soon
+  Probably the neat partial derivative
+  coming at it another way is probably doing the same thing as
+  suggested by the author.
