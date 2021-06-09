@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Copulas</title>
+<meta name="author" content="(Ryan)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/dist/theme/sky.css" id="theme"/>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+<script type="text/javascript" src="https://orgmode.org/org-info.js">
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
+// @license-end
+</script>
+
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
+<!--/*--><![CDATA[/*><!--*/
+org_html_manager.set("TOC_DEPTH", "9");
+org_html_manager.set("LINK_HOME", "");
+org_html_manager.set("LINK_UP", "");
+org_html_manager.set("LOCAL_TOC", "1");
+org_html_manager.set("VIEW_BUTTONS", "0");
+org_html_manager.set("MOUSE_HINT", "underline");
+org_html_manager.set("FIXED_TOC", "0");
+org_html_manager.set("TOC", "3");
+org_html_manager.set("VIEW", "showall");
+org_html_manager.setup();  // activate after the parameters are set
+/*]]>*///-->
+// @license-end
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide"><h1 class="title">Copulas</h1><h2 class="author">Ryan</h2><p class="date">Created: 2021-06-02 Wed 13:56</p>
+</section>
+<section id="table-of-contents"><div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#/slide-org10d13aa">1. Copulas as a type of Function</a>
+<ul>
+<li><a href="#/slide-org569b374">1.1. Quasi Monotone</a></li>
+<li><a href="#/slide-orge7fd81a">1.2. Grounded</a></li>
+<li><a href="#/slide-orgb608dba">1.3. Marginals</a></li>
+</ul>
+</li>
+<li><a href="#/slide-orgddb74ac">2. Distribution Functions</a>
+<ul>
+<li><a href="#/slide-org7ee4649">2.1. Univariate Distribution</a>
+<ul>
+<li><a href="#/slide-org4de6f57">2.1.1. Unit Step</a></li>
+<li><a href="#/slide-org625ea95">2.1.2. Uniform Distribution</a></li>
+</ul>
+</li>
+<li><a href="#/slide-org7e0a63c">2.2. Joint Distribution</a></li>
+<li><a href="#/slide-orga37e3f0">2.3. Quasi Inverse</a></li>
+</ul>
+</li>
+<li><a href="#/slide-orgda2abec">3. Sklar's Theorem</a>
+<ul>
+<li><a href="#/slide-org7b0e73f">3.1. Finding that Copula</a></li>
+<li><a href="#/slide-orgd21b76c">3.2. Marginals of the Copula</a></li>
+<li><a href="#/slide-orgdb4d970">3.3. Why?</a></li>
+</ul>
+</li>
+<li><a href="#/slide-org22ede36">4. Sampling Random Variables</a>
+<ul>
+<li><a href="#/slide-orgc23985b">4.1. Univariate</a>
+<ul>
+<li><a href="#/slide-orgf21bc33">4.1.1. Logistic Example</a></li>
+</ul>
+</li>
+<li><a href="#/slide-org3bc7c39">4.2. Multivariate</a></li>
+<li><a href="#/slide-org1ae820c">4.3. Independent</a></li>
+<li><a href="#/slide-orgbd8f130">4.4. Dependent</a>
+<ul>
+<li><a href="#/slide-orgbcce56b">4.4.1. Solve the Marginals</a></li>
+<li><a href="#/slide-org5fb9f7a">4.4.2. Solve the inverse</a></li>
+<li><a href="#/slide-org1bc419c">4.4.3. Find the Copula</a></li>
+<li><a href="#/slide-orgaeac1c2">4.4.4. Find a Random value</a></li>
+<li><a href="#/slide-org83f8fa5">4.4.5. Account for dependence</a>
+<ul>
+<li><a href="#/slide-org7bd9fd2">4.4.5.1. Partial Derivative</a></li>
+<li><a href="#/slide-orge6efe9f">4.4.5.2. Inverse the PDE</a></li>
+</ul>
+</li>
+<li><a href="#/slide-org17ff530">4.4.6. Restate the Uniform Values</a></li>
+<li><a href="#/slide-org40aecfb">4.4.7. Plug these into the inverse marginals</a></li>
+<li><a href="#/slide-orgf36dbf4">4.4.8. Now let's program it</a></li>
+</ul>
+</li>
+<li><a href="#/slide-org198ef3f">4.5. How I did the Dependent</a>
+<ul>
+<li><a href="#/slide-org9ade7c4">4.5.1. Find a copula</a></li>
+<li><a href="#/slide-org0622d2c">4.5.2. Next</a></li>
+<li><a href="#/slide-orgeab596f">4.5.3. How to Simulate values from a joint distribution</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#/slide-orgedcaae2">5. Why Copulas?</a></li>
+</ul>
+</div>
+</div>
+</section>
+
+
+<section>
+<section id="slide-org10d13aa">
+<h2 id="org10d13aa"><span class="section-number-2">1</span> Copulas as a type of Function</h2>
+<ol>
+<li>Domain is given by \(\left[0,1\right]\)</li>
+<li>Grounded</li>
+<li>Quasi Monotone</li>
+<li>Marginals exist</li>
+
+</ol>
+
+<p>
+\(\implies\) range of \(\left[0,1\right]\)
+</p>
+</section>
+<section id="slide-org569b374">
+<h3 id="org569b374"><span class="section-number-3">1.1</span> Quasi Monotone</h3>
+<p>
+\[\begin{aligned}
+    \forall \left(x_{1}\leq x_{2}\land y_{1}\leq
+    y_{2}\right)&\in\left(S_{1}\times S_{2}\right) \\
+    \ &\\
+    C'\left(x_{1},y_{1}\right)&+C'\left(x_{2},y_{2}\right) \\
+    &\geq \\
+    C'\left(x_{1},y_{2}\right)&+C'\left(x_{2},y_{1}\right)
+    \end{aligned}\]
+</p>
+</section>
+<section id="slide-orge7fd81a">
+<h3 id="orge7fd81a"><span class="section-number-3">1.2</span> Grounded</h3>
+<p>
+\[
+    \left(x=0\right)\lor\left(y=0\right)\implies C'\left(x,y\right)=0
+    \]
+</p>
+</section>
+<section id="slide-orgb608dba">
+<h3 id="orgb608dba"><span class="section-number-3">1.3</span> Marginals</h3>
+<p>
+Let \(b_1\) and \(b_2\) be the largest values on the domain,
+marginals are:
+</p>
+
+<ul>
+<li>\(F\left(x\right)=H\left(x,b_{2}\right)\)</li>
+<li>\(G\left(y\right)=H\left(b_{1},y\right)\)</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgddb74ac">
+<h2 id="orgddb74ac"><span class="section-number-2">2</span> Distribution Functions</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+</section>
+<section id="slide-org7ee4649">
+<h3 id="org7ee4649"><span class="section-number-3">2.1</span> Univariate Distribution</h3>
+<p>
+\(F:\mathbb{R}\rightarrow\left[0,1\right]\) is such that:
+</p>
+
+<ul>
+<li>\(F\) is non-decreasing</li>
+<li>\(F\left(-\infty\right)=0\)</li>
+<li>\(F\left(\infty\right)=1\)</li>
+
+</ul>
+</section>
+<section id="slide-org4de6f57">
+<h4 id="org4de6f57"><span class="section-number-4">2.1.1</span> Unit Step</h4>
+
+<div id="org0896373" class="figure">
+<p><object type="image/svg+xml" data="../media/unit-step.svg" class="org-svg" width="400px">
+Sorry, your browser does not support SVG.</object>
+</p>
+<p><span class="figure-number">Figure 1: </span>Output produced by listing with 9 folds</p>
+</div>
+</section>
+<section id="slide-org625ea95">
+<h4 id="org625ea95"><span class="section-number-4">2.1.2</span> Uniform Distribution</h4>
+<p>
+Area underneath:
+</p>
+
+<div id="orgf19cf73" class="figure">
+<p><object type="image/svg+xml" data="../media/uniform-distribution.svg" class="org-svg" width="400px">
+Sorry, your browser does not support SVG.</object>
+</p>
+<p><span class="figure-number">Figure 2: </span>Output produced by listing with 9 folds</p>
+</div>
+
+</section>
+<section id="slide-org7e0a63c">
+<h3 id="org7e0a63c"><span class="section-number-3">2.2</span> Joint Distribution</h3>
+<p>
+Some function H with a domain on \mathbb{R}<sup>2</sup>
+</p>
+
+<ol>
+<li>\(H\) is 2-increasing</li>
+<li>Is grounded</li>
+<li>\(H\left(x,-\infty\right)=H\left(y,-\infty\right)=0\)</li>
+<li>\(H\left(\infty,\infty\right)=1\)</li>
+
+</ol>
+</section>
+<section id="slide-orga37e3f0">
+<h3 id="orga37e3f0"><span class="section-number-3">2.3</span> Quasi Inverse</h3>
+
+<div id="org6661689" class="figure">
+<p><object type="image/svg+xml" data="../media/quasi-inverse.svg" class="org-svg" width="400px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgda2abec">
+<h2 id="orgda2abec"><span class="section-number-2">3</span> Sklar's Theorem</h2>
+<p>
+We can always find a copula \(C\):
+\[
+    H\left(x,y\right)=C\left(F\left(x\right),G\left(y\right)\right)
+  \]
+</p>
+</section>
+<section id="slide-org7b0e73f">
+<h3 id="org7b0e73f"><span class="section-number-3">3.1</span> Finding that Copula</h3>
+<p>
+Just inverse it:
+\[
+    C\left(u,v\right)=H\left(F^{-1}\left(x\right),G^{-1}\left(y\right)\right)
+   \]
+</p>
+</section>
+<section id="slide-orgd21b76c">
+<h3 id="orgd21b76c"><span class="section-number-3">3.2</span> Marginals of the Copula</h3>
+<p>
+The marginals of this copula will be uniformly distributed.
+</p>
+</section>
+<section id="slide-orgdb4d970">
+<h3 id="orgdb4d970"><span class="section-number-3">3.3</span> Why?</h3>
+<p>
+Take in two probabilities, spit out the probability of both.
+</p>
+
+<p>
+It describes the interaction between the two variables
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org22ede36">
+<h2 id="org22ede36"><span class="section-number-2">4</span> Sampling Random Variables</h2>
+<div class="outline-text-2" id="text-4">
+</div>
+</section>
+<section id="slide-orgc23985b">
+<h3 id="orgc23985b"><span class="section-number-3">4.1</span> Univariate</h3>
+<div class="outline-text-3" id="text-4-1">
+</div>
+</section>
+<section id="slide-orgf21bc33">
+<h4 id="orgf21bc33"><span class="section-number-4">4.1.1</span> Logistic Example</h4>
+</section>
+<section id="slide-org3bc7c39">
+<h3 id="org3bc7c39"><span class="section-number-3">4.2</span> Multivariate</h3>
+</section>
+<section id="slide-org1ae820c">
+<h3 id="org1ae820c"><span class="section-number-3">4.3</span> Independent</h3>
+<p>
+<code>TODO</code>: show inverse of inverse multiplied is xy
+</p>
+
+
+</section>
+<section id="slide-orgbd8f130">
+<h3 id="orgbd8f130"><span class="section-number-3">4.4</span> Dependent</h3>
+<p>
+So, let's say i have this distribution:
+\[
+    H\left(x,y\right) = \frac{e^{0.7 x+0.5 y}}{e^{0.7 x+0.5 y}+e^{0.7 x}+e^{0.5 y}}   
+    \]
+ It looks complex but synthesizing examples hard!
+</p>
+
+</section>
+<section id="slide-orgbcce56b">
+<h4 id="orgbcce56b"><span class="section-number-4">4.4.1</span> Solve the Marginals</h4>
+<p>
+The marginals occur at the maximum values:
+\[
+    x = 1 \implies \frac{1}{e^{-0.7 x}+1}
+    \]
+\[
+    y = 1 \implies \frac{1}{e^{-0.5 y}+1}
+    \]
+</p>
+
+<p>
+So this is what we get without there interdependence.
+</p>
+
+</section>
+<section id="slide-org5fb9f7a">
+<h4 id="org5fb9f7a"><span class="section-number-4">4.4.2</span> Solve the inverse</h4>
+<p>
+\[
+    F^{-1}(x)=P(X\leq x)=\frac{\log \left(-\frac{x}{x-1}\right)}{-0.7}
+    \]
+\[
+    G^{-1}(y)=P(Y\leq y)=\frac{\log \left(-\frac{y}{y-1}\right)}{-0.5}
+    \]
+</p>
+
+</section>
+<section id="slide-org1bc419c">
+<h4 id="org1bc419c"><span class="section-number-4">4.4.3</span> Find the Copula</h4>
+<p>
+\[\begin{aligned}
+    C\left(u,v\right)&=H\left(F^{-1}\left(u\right),G^{-1}\left(v\right)\right)\\
+    \ \\
+    &=\frac{uv}{1-(1-u)(1-v)}
+    \end{aligned}\]
+</p>
+
+</section>
+<section id="slide-orgaeac1c2">
+<h4 id="orgaeac1c2"><span class="section-number-4">4.4.4</span> Find a Random value</h4>
+<div class="org-src-container">
+
+<pre  class="src src-julia" ><code trim>n = 1
+u = rand(Uniform(0,1), 1)
+t = rand(Uniform(0,1), 1)
+<span style="color: #6272a4;"># </span><span style="color: #6272a4;">v depends on u and t</span>
+</code></pre>
+</div>
+
+</section>
+<section id="slide-org83f8fa5">
+<h4 id="org83f8fa5"><span class="section-number-4">4.4.5</span> Account for dependence</h4>
+<div class="outline-text-4" id="text-4-4-5">
+</div>
+</section>
+<section id="slide-org7bd9fd2">
+<h5 id="org7bd9fd2"><span class="section-number-5">4.4.5.1</span> Partial Derivative</h5>
+<p>
+It can be shown that 
+</p>
+
+<div>
+\begin{align*}
+    \mathrm{P}\left[ V \leq v \mid U = u  \right] &= \lim_{\Delta \rightarrow  0}\left( \frac{\mathrm{C}\left( u + \Delta u, v \right) -\mathrm{C}\left( u,v \right) }{F\left( u + \Delta u \right) - F \left( u \right) } \right) \\
+ &= \frac{\partial C}{\partial u} \\
+    &= \frac{v^2}{(u (-v)+u+v)^2} \\
+   & := c_u\left(v \right)
+.\end{align*}
+
+</div>
+
+</section>
+<section id="slide-orge6efe9f">
+<h5 id="orge6efe9f"><span class="section-number-5">4.4.5.2</span> Inverse the PDE</h5>
+<p>
+Take \(u, t \in \left[0,1\right]\) use it to find \(v\):
+</p>
+
+<p>
+\[
+       c_u\left(v\right) = t
+       \]
+which gives:
+</p>
+
+<p>
+\[
+	c^{-1}_u\left(t\right) = \frac{u^2 t-u t-u \sqrt{t}}{u^2 t-2 u t+t-1}
+       \]
+</p>
+
+
+</section>
+<section id="slide-org17ff530">
+<h4 id="org17ff530"><span class="section-number-4">4.4.6</span> Restate the Uniform Values</h4>
+<p>
+\(u,t \in \mathrm{U}\left[0,1\right]\) and:
+</p>
+
+
+<p>
+\[
+	v = c^{-1}_u\left(t\right) = \frac{u^2 t-u t-u \sqrt{t}}{u^2 t-2 u t+t-1}
+       \]
+</p>
+
+</section>
+<section id="slide-org40aecfb">
+<h4 id="org40aecfb"><span class="section-number-4">4.4.7</span> Plug these into the inverse marginals</h4>
+<p>
+\[
+     x =   \mathrm{F}^{-1}\left(u\right) = \frac{\log \left(-\frac{u}{u-1}\right)}{-0.7}
+     \]
+</p>
+
+
+<p>
+\[\begin{align*}
+     y &= \mathrm{G}^{-1}\left(v\right) = \frac{\log
+     \left(-\frac{y}{y-1}\right)}{-0.5}
+     \end{align*}\]
+</p>
+
+
+
+</section>
+<section id="slide-orgf36dbf4">
+<h4 id="orgf36dbf4"><span class="section-number-4">4.4.8</span> Now let's program it</h4>
+
+</section>
+<section id="slide-org198ef3f">
+<h3 id="org198ef3f"><span class="section-number-3">4.5</span> How I did the Dependent</h3>
+<div class="outline-text-3" id="text-4-5">
+</div>
+</section>
+<section id="slide-org9ade7c4">
+<h4 id="org9ade7c4"><span class="section-number-4">4.5.1</span> Find a copula</h4>
+<p>
+So pick a family of copulas, plug in some marginal functions
+(let's choose exponential), out pops a joint dist.
+</p>
+
+</section>
+<section id="slide-org0622d2c">
+<h4 id="org0622d2c"><span class="section-number-4">4.5.2</span> Next</h4>
+<p>
+plug in marginals
+solve the randoms
+</p>
+</section>
+<section id="slide-orgeab596f">
+<h4 id="orgeab596f"><span class="section-number-4">4.5.3</span> How to Simulate values from a joint distribution</h4>
+<ol>
+<li>Solve the Marginals and inverse them</li>
+<li>Plug the Inverse back into the joint distribution to get the copula</li>
+<li>Solve the inverse partial derivative</li>
+<li>Pick \(u, t \in [0,1]\)</li>
+<li>Plug t into the partial to get v</li>
+<li>Plug u,t back into the inverse marginals and you're done.</li>
+
+</ol>
+
+</section>
+</section>
+<section>
+<section id="slide-orgedcaae2">
+<h2 id="orgedcaae2"><span class="section-number-2">5</span> Why Copulas?</h2>
+<ul>
+<li>Why not just use the marginals to get the probability?
+<ul>
+<li>Great Question
+<ul>
+<li>I don't know yet, but probably generating samples</li>
+
+</ul></li>
+
+</ul></li>
+
+</ul>
+<p>
+Coming Soon
+Probably the neat partial derivative
+coming at it another way is probably doing the same thing as
+suggested by the author.
+</p>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/dist/reveal.js"></script>
+<script src="./reveal.js/plugin/markdown/markdown.js"></script>
+<script src="./reveal.js/plugin/zoom/zoom.js"></script>
+<script src="./reveal.js/plugin/notes/notes.js"></script>
+
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+plugins: [RevealMarkdown,RevealZoom,RevealNotes],
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+]
+});
+
+
+</script>
+</body>
+</html>
